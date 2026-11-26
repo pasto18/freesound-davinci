@@ -11,6 +11,6 @@ cat > "$STAGE/package.json" <<JSON
 { "name": "freesound-studio", "version": "$VERSION", "main": "main.js" }
 JSON
 ARCH=$(uname -m); [ "$ARCH" = "arm64" ] || ARCH=x64
-npx --yes @electron/packager "$STAGE" "Freesound Studio" --platform=darwin --arch=$ARCH --out dist --overwrite \
+npx --yes @electron/packager "$STAGE" "Freesound Studio" --platform=darwin --arch=$ARCH --out dist --overwrite --no-asar \
   --electron-version="$(node -p "require('./node_modules/electron/package.json').version")"
 echo "Listo: dist/Freesound Studio-darwin-$ARCH/Freesound Studio.app"
