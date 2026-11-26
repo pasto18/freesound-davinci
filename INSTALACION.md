@@ -5,7 +5,7 @@ Guía paso a paso. No hace falta saber programar. Tiempo: ~10 minutos.
 ## Qué necesitás
 - Una Mac con **DaVinci Resolve Studio** (la versión paga). Los plugins "Workflow Integration" **no funcionan en la versión gratuita**.
 - Una cuenta gratis en Freesound y otra en Giphy (los pasos de abajo te dicen cómo sacar las claves).
-- La carpeta del plugin que te pasó tu amigo (`freesound-davinci.zip`).
+- La carpeta del plugin: descargala de https://github.com/pasto18/freesound-davinci/archive/refs/heads/main.zip
 
 ---
 
@@ -31,12 +31,12 @@ Guía paso a paso. No hace falta saber programar. Tiempo: ~10 minutos.
 ---
 
 ## Paso 2: Descomprimir el plugin
-1. Poné `freesound-davinci.zip` en el Escritorio y hacé doble clic para descomprimir.
-2. Te queda una carpeta `freesound-davinci` en el Escritorio.
+1. Poné el zip descargado (`freesound-davinci-main.zip`) en el Escritorio y hacé doble clic para descomprimir.
+2. Te queda una carpeta `freesound-davinci-main` en el Escritorio.
 
 ## Paso 3: Instalar (automático)
 1. Abrí la app **Terminal** (Cmd + Espacio, escribí "Terminal", Enter).
-2. Escribí `cd ` (con un espacio al final), **arrastrá la carpeta `freesound-davinci` a la ventana de Terminal** y apretá Enter.
+2. Escribí `cd ` (con un espacio al final), **arrastrá la carpeta `freesound-davinci-main` a la ventana de Terminal** y apretá Enter.
 3. Pegá este comando y apretá Enter:
    ```
    ./install.sh
@@ -72,6 +72,18 @@ Cuando termina dice "Listo".
 ## Actualizar el plugin
 Cuando haya una versión nueva, al abrir el panel aparece arriba una barra verde: **"Nueva versión disponible"**. Tocá **Actualizar**, esperá el mensaje "Listo" y reiniciá DaVinci Resolve (Cmd + Q y volver a abrirlo). Tus claves y carpetas no se tocan. (Necesita internet.)
 
+En la app independiente **Freesound Studio** es igual, pero se reinicia sola al tocar **Actualizar**.
+
+---
+
+## App independiente "Freesound Studio" (sin DaVinci)
+1. Descomprimí `Freesound-Studio.zip` y **arrastrá la app a la carpeta Aplicaciones** (necesario para que pueda actualizarse).
+2. La primera vez macOS la bloquea porque no está firmada. En Terminal:
+   ```
+   xattr -dr com.apple.quarantine "/Applications/Freesound Studio.app"
+   ```
+3. Abrila y cargá tus claves en **⚙ Configuración** (Paso 1 para sacarlas).
+
 ---
 
 ## Cambiar las carpetas después
@@ -101,7 +113,7 @@ Las carpetas se guardan en un archivo de texto:
 |---|---|
 | **No aparece Workflow Integrations** en el menú Workspace | Necesitás Resolve **Studio**. Reiniciá Resolve. Verificá que exista la carpeta `/Library/Application Support/Blackmagic Design/DaVinci Resolve/Workflow Integration Plugins/com.lisi.freesound` |
 | **Aparece Workflow Integrations pero no "Freesound"** | El install.sh no terminó bien. Volvé a correrlo. |
-| macOS bloquea `WorkflowIntegration.node` ("no se puede verificar") | Terminal: `sudo xattr -dr com.apple.quarantine "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Workflow Integration Plugins/com.lisi.freesound"` y reiniciá Resolve. También conviene correr `xattr -dr com.apple.quarantine ~/Desktop/freesound-davinci` antes del Paso 3. |
+| macOS bloquea `WorkflowIntegration.node` ("no se puede verificar") | Terminal: `sudo xattr -dr com.apple.quarantine "/Library/Application Support/Blackmagic Design/DaVinci Resolve/Workflow Integration Plugins/com.lisi.freesound"` y reiniciá Resolve. También conviene correr `xattr -dr com.apple.quarantine ~/Desktop/freesound-davinci-main` antes del Paso 3. |
 | Dice "Falta config.json" | Corré `./install.sh` otra vez, o creá `~/.freesound-davinci/config.json` a mano (ver `config.example.json`). |
 | "Iniciar sesión" falla / error de redirect | En https://freesound.org/apiv2/apply el Callback URL debe ser exactamente `http://localhost:8765/callback`. |
 | Los GIFs dan error | Revisá `giphyApiKey` en `config.json`. |
@@ -117,17 +129,10 @@ rm -rf ~/.freesound-davinci
 ---
 
 # Para quien comparte (Lisi): publicar una actualización
-El código está en https://github.com/pasto18/freesound-davinci. Para que a tu amigo le aparezca el botón:
+El código está en https://github.com/pasto18/freesound-davinci. Para que a tu socio le aparezca el botón:
 
 ```
 cd ~/Desktop/APPs/freesound-davinci
-# 1. Subí el número "version" en package.json (ej. 1.0.1 -> 1.0.2)
-git add -A && git commit -m "Descripción del cambio" && git push
+./publicar.sh "Descripción del cambio"
 ```
-Sin subir la versión no aparece el aviso. Para instalarlo en tu Resolve: `./install.sh`.
-
-La primera vez, tu amigo instala con el zip (Paso 2 en adelante); desde ahí se actualiza solo con el botón. El zip no debe llevar `node_modules`, `dist` ni `config.json` (claves personales):
-
-```
-cd ~/Desktop/APPs && rm -f freesound-davinci.zip && zip -qr freesound-davinci.zip freesound-davinci -x "*/node_modules/*" "*/dist/*" "*/.DS_Store" "*/config.json" "*/.git/*"
-```
+Sube el número de versión, hace el commit y lo sube a GitHub. Para actualizar tu propio Resolve: `./install.sh`.

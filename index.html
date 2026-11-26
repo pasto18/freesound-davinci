@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https://cdn.freesound.org https://freesound.org https://*.giphy.com file: data:; media-src https://cdn.freesound.org https://freesound.org https://*.giphy.com file:; style-src 'self'; script-src 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https://i.ytimg.com https://cdn.freesound.org https://freesound.org https://*.giphy.com https://www.svgrepo.com file: data:; media-src https://*.googlevideo.com https://cdn.freesound.org https://freesound.org https://*.giphy.com file:; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'">
     <title>Freesound</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="renderer.js" defer></script>
@@ -12,15 +12,58 @@
         <div class="tabs">
             <button type="button" id="tabSfx" class="tab on">Sonidos</button>
             <button type="button" id="tabGif" class="tab">GIFs</button>
+            <button type="button" id="tabSvg" class="tab">SVG</button>
+            <button type="button" id="tabYt" class="tab">YouTube</button>
+            <button type="button" id="tabFont" class="tab">Fuentes</button>
+            <button type="button" id="tabGen" class="tab">Audio IA</button>
         </div>
         <form id="searchForm">
             <input id="query" type="search" placeholder="Buscar sonidos (ej. whoosh, rain, door)..." autofocus>
             <button type="submit">Buscar</button>
         </form>
-        <div class="sources">
+        <div class="sources" id="sources">
             <button type="button" id="srcRemote" class="toggle on">Freesound</button>
             <button type="button" id="srcLocal" class="toggle on">Local</button>
+            <button type="button" id="optSticker" class="toggle" title="Giphy: solo stickers (fondo transparente, se descargan como GIF)" hidden>Stickers</button>
         </div>
+        <div class="clipbar" id="clipBar">
+            <button type="button" id="optTrim" class="toggle" title="Al insertar/arrastrar, saltea el silencio del comienzo">Quitar silencio inicial</button>
+            <span class="secs">
+                <input id="optSecs" type="number" min="0.1" step="0.5" value="5" title="Segundos a usar desde el comienzo">
+                <span>s</span>
+                <button type="button" id="optSecsOn" class="toggle" title="Limitar la duración al insertar/arrastrar">✓</button>
+            </span>
+        </div>
+        <div id="genBar" hidden>
+            <div class="styles" id="genType">
+                <button type="button" data-type="voz" class="on">Voz</button>
+                <button type="button" data-type="sfx">Efecto de sonido</button>
+            </div>
+            <textarea id="genText" rows="6" placeholder="Texto a locutar..."></textarea>
+            <div class="filters genVoz" id="genAddRow">
+                <input id="genVoiceId" type="text" placeholder="Pegá un ID de voz" spellcheck="false">
+                <input id="genVoiceName" type="text" placeholder="Nombre (opcional)" spellcheck="false">
+                <button type="button" id="genAddVoice">+ Añadir voz</button>
+                <button type="button" id="genDelVoice" title="Quitar la voz seleccionada de tu lista de IDs" hidden>Quitar</button>
+            </div>
+            <div class="filters">
+                <label class="genVoz">Voz <select id="genVoice"><option value="">Cargando...</option></select></label>
+                <label class="genVoz">Modelo
+                    <select id="genModel">
+                        <option value="eleven_multilingual_v2">Multilingual v2</option>
+                        <option value="eleven_v3">v3</option>
+                        <option value="eleven_turbo_v2_5">Turbo v2.5</option>
+                        <option value="eleven_flash_v2_5">Flash v2.5</option>
+                    </select>
+                </label>
+                <label class="genSfx">Duración (s, 0 = auto) <input id="genDur" type="number" min="0" max="30" step="0.5" value="0"></label>
+                <label class="genSfx">Fidelidad al prompt <input id="genInfl" type="number" min="0" max="1" step="0.1" value="0.3"></label>
+                <button type="button" id="genGo" class="primary">Generar</button>
+            </div>
+        </div>
+        <div class="styles" id="svgStyles" hidden></div>
+        <div class="styles" id="fontCats" hidden></div>
+        <input id="fontText" type="text" value="The quick brown fox" placeholder="Texto de prueba para ver las fuentes" hidden>
         <div class="filters" id="sfxFilters">
             <label>Duración máx.
                 <select id="maxDuration">
@@ -48,12 +91,34 @@
                 </select>
             </label>
         </div>
-        <div class="filters">
+        <div class="filters" id="trackBar">
             <label id="lblTrackA">Pista de audio
                 <input id="trackA" type="number" min="1" value="1">
             </label>
             <label id="lblTrackV" hidden>Pista de video
                 <input id="trackV" type="number" min="1" value="2">
+            </label>
+            <label id="lblMedia" class="mediaSel" hidden title="Qué descargar de cada video">Descargar
+                <select id="ytMedia">
+                    <option value="both">Video + audio</option>
+                    <option value="video">Solo video</option>
+                    <option value="audio">Solo audio</option>
+                </select>
+            </label>
+            <label id="lblPrevAudio" hidden title="Sin audio la vista previa carga más rápido (solo se descarga el video en baja calidad). Con audio se descarga además la pista de sonido, así que tarda un poco más en empezar."><input type="checkbox" id="ytPrevAudio"> 🔊 Audio en vista previa</label>
+            <label id="lblMinQ" hidden title="Solo mostrar videos que tengan al menos esta calidad disponible">Calidad mín.
+                <select id="ytMinQ">
+                    <option value="0">Cualquiera</option>
+                    <option value="144">144p</option>
+                    <option value="240">240p</option>
+                    <option value="360">360p</option>
+                    <option value="480">480p</option>
+                    <option value="720">720p (HD)</option>
+                    <option value="1080">1080p (Full HD)</option>
+                    <option value="1440">1440p (2K)</option>
+                    <option value="2160">2160p (4K)</option>
+                    <option value="4320">4320p (8K)</option>
+                </select>
             </label>
         </div>
     </header>
@@ -66,6 +131,49 @@
         <span id="status"></span>
         <span id="giphyCredit" hidden>Powered by GIPHY</span>
         <button id="auth" class="link"></button>
+        <button id="cfgOpen" class="link" title="Claves de API y carpetas">⚙ Configuración</button>
     </footer>
+    <div id="cfgModal" class="modal" hidden>
+        <form id="cfgForm" class="dialog" autocomplete="off">
+            <h3>Configuración</h3>
+            <p class="hint">Las claves se guardan solo en tu Mac (<span id="cfgPath"></span>). Dejá un campo vacío para mantener lo ya guardado.</p>
+            <fieldset>
+                <legend>Freesound</legend>
+                <label>Client ID <input type="password" data-secret="clientId" spellcheck="false"></label>
+                <label>Client Secret (API key) <input type="password" data-secret="clientSecret" spellcheck="false"></label>
+                <label>Carpeta de sonidos <input type="text" data-path="downloadDir" placeholder="~/Sounds/Freesound" spellcheck="false"></label>
+            </fieldset>
+            <fieldset>
+                <legend>Giphy</legend>
+                <label>API key <input type="password" data-secret="giphyApiKey" spellcheck="false"></label>
+                <label>Carpeta de GIFs <input type="text" data-path="gifDir" placeholder="~/Sounds/GIFs" spellcheck="false"></label>
+            </fieldset>
+            <fieldset>
+                <legend>YouTube</legend>
+                <label>Carpeta de videos descargados <input type="text" data-path="youtubeDir" placeholder="~/Sounds/YouTube" spellcheck="false"></label>
+                <label>Calidad máxima de descarga
+                    <select id="cfgYtQuality">
+                        <option value="720">720p</option>
+                        <option value="1080">1080p (H.264, compatible con Resolve)</option>
+                        <option value="1440">1440p (2K)</option>
+                        <option value="2160">2160p (4K)</option>
+                        <option value="max">Máxima disponible</option>
+                    </select>
+                </label>
+                <label class="check"><input type="checkbox" id="cfgYtConvert"> Convertir a H.264 si el original es VP9/AV1 (solo importa por encima de 1080p; tarda más)</label>
+                <p class="hint">Usa <code>yt-dlp</code> y <code>ffmpeg</code> (brew install yt-dlp ffmpeg). Descargá solo lo que tengas derecho a usar.</p>
+            </fieldset>
+            <fieldset>
+                <legend>ElevenLabs</legend>
+                <label>API key <input type="password" data-secret="elevenlabsApiKey" spellcheck="false"></label>
+                <label>Carpeta de audios generados <input type="text" data-path="elevenlabsDir" placeholder="~/Sounds/ElevenLabs" spellcheck="false"></label>
+            </fieldset>
+            <div class="dialogActions">
+                <span id="cfgState"></span>
+                <button type="button" id="cfgCancel">Cerrar</button>
+                <button type="submit" id="cfgSave" class="primary">Guardar</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
