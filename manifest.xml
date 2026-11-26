@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BlackmagicDesign>
+    <Plugin>
+        <Id>com.lisi.freesound</Id>
+        <Name>Freesound</Name>
+        <Version>1.0</Version>
+        <Description>Busca sonidos en Freesound, descargalos e insertalos en la timeline</Description>
+        <FilePath>main.js</FilePath>
+    </Plugin>
+</BlackmagicDesign>

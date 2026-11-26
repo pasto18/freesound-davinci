@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https://cdn.freesound.org https://freesound.org https://*.giphy.com file: data:; media-src https://cdn.freesound.org https://freesound.org https://*.giphy.com file:; style-src 'self'; script-src 'self'">
+    <title>Freesound</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="renderer.js" defer></script>
+</head>
+<body>
+    <header>
+        <div class="tabs">
+            <button type="button" id="tabSfx" class="tab on">Sonidos</button>
+            <button type="button" id="tabGif" class="tab">GIFs</button>
+        </div>
+        <form id="searchForm">
+            <input id="query" type="search" placeholder="Buscar sonidos (ej. whoosh, rain, door)..." autofocus>
+            <button type="submit">Buscar</button>
+        </form>
+        <div class="sources">
+            <button type="button" id="srcRemote" class="toggle on">Freesound</button>
+            <button type="button" id="srcLocal" class="toggle on">Local</button>
+        </div>
+        <div class="filters" id="sfxFilters">
+            <label>Duración máx.
+                <select id="maxDuration">
+                    <option value="">Cualquiera</option>
+                    <option value="2">2 s</option>
+                    <option value="5">5 s</option>
+                    <option value="15">15 s</option>
+                    <option value="60" selected>1 min</option>
+                    <option value="300">5 min</option>
+                </select>
+            </label>
+            <label>Licencia
+                <select id="license">
+                    <option value="">Todas</option>
+                    <option value="cc0">CC0 (sin atribución)</option>
+                    <option value="commercial">Uso comercial</option>
+                </select>
+            </label>
+            <label>Orden
+                <select id="sort">
+                    <option value="score">Relevancia</option>
+                    <option value="downloads_desc">Más descargados</option>
+                    <option value="rating_desc">Mejor valorados</option>
+                    <option value="duration_asc">Más cortos</option>
+                </select>
+            </label>
+        </div>
+        <div class="filters">
+            <label id="lblTrackA">Pista de audio
+                <input id="trackA" type="number" min="1" value="1">
+            </label>
+            <label id="lblTrackV" hidden>Pista de video
+                <input id="trackV" type="number" min="1" value="2">
+            </label>
+        </div>
+    </header>
+    <div id="updateBar" hidden><span id="updateMsg"></span> <button type="button" id="updateBtn">Actualizar</button></div>
+    <div id="banner" hidden></div>
+    <nav id="crumbs" hidden></nav>
+    <main id="results"></main>
+    <footer>
+        <button id="more" hidden>Cargar más</button>
+        <span id="status"></span>
+        <span id="giphyCredit" hidden>Powered by GIPHY</span>
+        <button id="auth" class="link"></button>
+    </footer>
+</body>
+</html>

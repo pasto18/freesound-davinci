@@ -1,0 +1,10 @@
+{
+    "clientId": "TU_CLIENT_ID",
+    "clientSecret": "TU_CLIENT_SECRET_(API_KEY)",
+    "redirectPort": 8765,
+    "downloadDir": "~/Sounds/Freesound",
+    "localDir": "~/Sounds/Freesound",
+    "giphyApiKey": "TU_GIPHY_API_KEY",
+    "gifDir": "~/Sounds/GIFs",
+    "giphyRating": "pg-13"
+}
